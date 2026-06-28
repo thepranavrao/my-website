@@ -8,7 +8,7 @@ It runs in two modes:
 
 - **Offline demo** — plain HTML/CSS/JS, no server. Just double-click `index.html`.
   The questionnaire grades in the browser using `assets/questions.js`.
-- **Online (full stack)** — a FastAPI backend adds real accounts, server-side
+- **Online (full stack)** — a Node.js/Express backend adds real accounts, server-side
   grading, saved attempts, issued certificates and a live admin dashboard.
 
 The frontend auto-detects the backend: if `/api/health` responds it runs online,
@@ -16,11 +16,11 @@ otherwise it falls back to the offline demo.
 
 ## Run it — offline demo
 
-Double-click **`index.html`**, or serve the folder: `python -m http.server 8080`.
+Double-click **`index.html`**, or serve the folder: `npx http-server -p 8080`.
 
 ## Run it — with the backend (recommended)
 
-One command (creates a venv, installs deps, starts API + site on :8000):
+One command (installs deps if needed, starts API + site on :8000):
 
 ```powershell
 ./run-backend.ps1
@@ -31,31 +31,33 @@ Then open <http://localhost:8000>. Sign in with the seeded demo admin
 fresh organisation. Manual start instead of the script:
 
 ```powershell
-python -m venv backend/.venv
-backend/.venv/Scripts/python -m pip install -r backend/requirements.txt
-backend/.venv/Scripts/python -m uvicorn backend.app:app --port 8000
+npm install
+npm start
 ```
 
 ### Backend at a glance
 
-- **Stack**: FastAPI + SQLAlchemy + SQLite (`backend/poshcompass.db`). JWT auth and
-  password hashing use the Python standard library only — no native build deps.
-  Swap the engine URL in `backend/app.py` for Postgres in production.
+- **Stack**: Node.js/Express + SQLite via the built-in `node:sqlite` module
+  (`backend/poshcompass.db`). Token auth and password hashing use Node's built-in
+  `crypto` module only — no native build deps. Swap `backend/db.js` for another
+  engine in production.
 - **Security**: correct answers never ship to the browser; every answer is graded
-  on the server (`backend/scoring.py`). Every action is written to an `audit_log`.
+  on the server (`backend/scoring.js`). Every action is written to an `audit_log`.
 - **Key endpoints** (`/api`): `auth/register`, `auth/login`, `me`, `attempts`,
   `attempts/{id}/answer`, `attempts/{id}/finish`, `verify/{code}`, `admin/stats`.
-  Interactive API docs at <http://localhost:8000/docs>.
-- **Seed data**: one demo org (Department of Public Administration) with 8 learners
-  and finished attempts so the dashboard shows real numbers on first load.
 
 ```
 backend/
-  app.py            FastAPI app: models, auth, endpoints, seeding, static mount
-  scoring.py        server-side grading for all five formats
-  questions_seed.py question bank (payload kept separate from answers)
-  requirements.txt
+  server.js         Express app: routes, auth middleware, static mount
+  db.js             SQLite connection + schema
+  auth.js           password hashing + token sign/verify
+  scoring.js        server-side grading for all five formats
+  questionsSeed.js  question bank (payload kept separate from answers)
+  seed.js           demo org/data seeding
 ```
+
+> The original Python/FastAPI implementation is kept for reference in
+> `backend-python/`.
 
 ## Pages
 

@@ -1,0 +1,4 @@
+node_modules/
+backend/poshcompass.db
+backend-python/__pycache__/
+backend-python/.venv/
