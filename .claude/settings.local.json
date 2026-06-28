@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --check assets/assessment.js)",
+      "Bash(node --check assets/questions.js)",
+      "PowerShell($node = \\(Get-Command node -ErrorAction SilentlyContinue\\); if \\($node\\) { node --check \"assets/assessment.js\"; if \\($?\\) { \"assessment.js OK\" }; node --check \"assets/questions.js\"; if \\($?\\) { \"questions.js OK\" } } else { \"node not installed\" })",
+      "Bash(rm -rf extracted)",
+      "Bash(ls extracted *)"
+    ]
+  }
+}
